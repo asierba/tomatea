@@ -125,11 +125,24 @@ struct PomodoroView: View {
             HStack {
                 Text(title)
                 Spacer()
-                Text("\(value.wrappedValue) min")
-                    .foregroundStyle(.secondary)
+                TextField(title, value: clamped(value, to: range), format: .number)
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
                     .monospacedDigit()
+                    .frame(width: 52)
+                Text("min")
+                    .foregroundStyle(.secondary)
             }
         }
+    }
+
+    /// Typed values can fall outside the range the stepper enforces, so clamp them on write.
+    private func clamped(_ value: Binding<Int>, to range: ClosedRange<Int>) -> Binding<Int> {
+        Binding(
+            get: { value.wrappedValue },
+            set: { value.wrappedValue = min(max($0, range.lowerBound), range.upperBound) }
+        )
     }
 
     private func durationBinding(_ keyPath: WritableKeyPath<PomodoroDurations, Int>) -> Binding<Int> {

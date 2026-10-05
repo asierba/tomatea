@@ -1,3 +1,4 @@
+import AppKit
 import PomodoroCore
 import SwiftUI
 
@@ -71,6 +72,14 @@ struct PomodoroView: View {
                 .buttonStyle(.bordered)
                 .labelStyle(.iconOnly)
                 .help("Reset the timer")
+
+                Button("Quit", systemImage: "power") {
+                    NSApplication.shared.terminate(nil)
+                }
+                .buttonStyle(.bordered)
+                .labelStyle(.iconOnly)
+                .keyboardShortcut("q")
+                .help("Quit Pomodoro")
             }
         }
     }

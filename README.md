@@ -1,8 +1,9 @@
 # Pomodoro
 
-A small macOS menu bar Pomodoro timer. It runs 25-minute focus sessions, 5-minute
-short breaks, and a 15-minute break after every fourth focus session. A system
-sound plays when a session ends.
+A small macOS menu bar Pomodoro timer. It starts with 25-minute focus sessions,
+5-minute short breaks, and a 15-minute break after every fourth focus session.
+Session lengths can be changed from the timer's settings and are saved between
+launches. A system sound plays when a session ends.
 
 ## Run
 
@@ -15,6 +16,9 @@ swift run
 Click the timer in the menu bar to open the controls. Start or pause the current
 session, and use Reset to return to the beginning of the cycle. When a session
 ends, the next session is selected and waits for you to start it.
+Use the gear button to configure focus sessions (1–120 minutes), short breaks,
+and long breaks (1–60 minutes each). Settings are available while the timer is
+paused.
 
 ## Test
 

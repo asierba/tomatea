@@ -4,7 +4,7 @@ import XCTest
 @MainActor
 final class PomodoroTimerTests: XCTestCase {
     func testFocusAndShortBreakSessionsAlternate() {
-        let timer = PomodoroTimer()
+        let timer = makeTimer()
 
         timer.advanceToNextSession()
         XCTAssertEqual(timer.session, .shortBreak)
@@ -17,7 +17,7 @@ final class PomodoroTimerTests: XCTestCase {
     }
 
     func testFourthPomodoroStartsLongBreakThenResetsCycle() {
-        let timer = PomodoroTimer()
+        let timer = makeTimer()
 
         for _ in 0..<4 {
             timer.advanceToNextSession()
@@ -36,7 +36,7 @@ final class PomodoroTimerTests: XCTestCase {
     }
 
     func testResetReturnsToInitialFocusSession() {
-        let timer = PomodoroTimer()
+        let timer = makeTimer()
         timer.advanceToNextSession()
 
         timer.reset()
@@ -45,5 +45,46 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertEqual(timer.secondsRemaining, 25 * 60)
         XCTAssertEqual(timer.completedPomodoros, 0)
         XCTAssertFalse(timer.isRunning)
+    }
+
+    func testConfiguredDurationsApplyToEachSessionAndPersist() {
+        let defaults = makeDefaults()
+        let timer = PomodoroTimer(userDefaults: defaults)
+        let durations = PomodoroDurations(
+            focusMinutes: 30,
+            shortBreakMinutes: 7,
+            longBreakMinutes: 20
+        )
+
+        timer.updateDurations(durations)
+        XCTAssertEqual(timer.secondsRemaining, 30 * 60)
+
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.secondsRemaining, 7 * 60)
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.secondsRemaining, 30 * 60)
+
+        for _ in 0..<3 {
+            timer.advanceToNextSession()
+            if timer.session == .shortBreak {
+                timer.advanceToNextSession()
+            }
+        }
+        XCTAssertEqual(timer.session, .longBreak)
+        XCTAssertEqual(timer.secondsRemaining, 20 * 60)
+
+        let reloadedTimer = PomodoroTimer(userDefaults: defaults)
+        XCTAssertEqual(reloadedTimer.durations, durations)
+    }
+
+    private func makeTimer() -> PomodoroTimer {
+        PomodoroTimer(userDefaults: makeDefaults())
+    }
+
+    private func makeDefaults() -> UserDefaults {
+        let suiteName = "PomodoroTimerTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+        return defaults
     }
 }

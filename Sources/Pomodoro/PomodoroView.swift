@@ -3,12 +3,25 @@ import SwiftUI
 
 struct PomodoroView: View {
     @ObservedObject var timer: PomodoroTimer
+    @State private var showingSettings = false
 
     private var progress: Double {
-        Double(timer.session.duration - timer.secondsRemaining) / Double(timer.session.duration)
+        Double(timer.sessionDuration - timer.secondsRemaining) / Double(timer.sessionDuration)
     }
 
     var body: some View {
+        Group {
+            if showingSettings {
+                settingsView
+            } else {
+                timerView
+            }
+        }
+        .padding(22)
+        .frame(width: 300, height: 330)
+    }
+
+    private var timerView: some View {
         VStack(spacing: 18) {
             HStack {
                 Image(systemName: timer.session == .focus ? "brain.head.profile" : "cup.and.saucer")
@@ -19,6 +32,14 @@ struct PomodoroView: View {
                 Text("\(timer.completedPomodoros) of 4")
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
+                Button {
+                    showingSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(.plain)
+                .disabled(timer.isRunning)
+                .help("Configure session lengths")
             }
 
             Text(timer.formattedTime)
@@ -52,8 +73,74 @@ struct PomodoroView: View {
                 .help("Reset the timer")
             }
         }
-        .padding(22)
-        .frame(width: 300, height: 330)
+    }
+
+    private var settingsView: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Button {
+                    showingSettings = false
+                } label: {
+                    Label("Timer", systemImage: "chevron.left")
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+                Text("Session lengths")
+                    .font(.headline)
+                Spacer()
+            }
+
+            durationStepper(
+                "Focus",
+                value: durationBinding(\.focusMinutes),
+                range: 1...120
+            )
+            durationStepper(
+                "Short break",
+                value: durationBinding(\.shortBreakMinutes),
+                range: 1...60
+            )
+            durationStepper(
+                "Long break",
+                value: durationBinding(\.longBreakMinutes),
+                range: 1...60
+            )
+
+            Spacer(minLength: 0)
+
+            Button("Restore defaults") {
+                timer.updateDurations(.standard)
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+
+    private func durationStepper(
+        _ title: String,
+        value: Binding<Int>,
+        range: ClosedRange<Int>
+    ) -> some View {
+        Stepper(value: value, in: range) {
+            HStack {
+                Text(title)
+                Spacer()
+                Text("\(value.wrappedValue) min")
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+        }
+    }
+
+    private func durationBinding(_ keyPath: WritableKeyPath<PomodoroDurations, Int>) -> Binding<Int> {
+        Binding(
+            get: { timer.durations[keyPath: keyPath] },
+            set: { newValue in
+                var updated = timer.durations
+                updated[keyPath: keyPath] = newValue
+                timer.updateDurations(updated)
+            }
+        )
     }
 
     private var sessionColor: Color {

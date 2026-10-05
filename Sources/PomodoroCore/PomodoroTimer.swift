@@ -14,31 +14,79 @@ public enum PomodoroSession: Equatable {
         case .longBreak: "Long break"
         }
     }
+}
 
-    public var duration: Int {
-        switch self {
-        case .focus: 25 * 60
-        case .shortBreak: 5 * 60
-        case .longBreak: 15 * 60
+public struct PomodoroDurations: Equatable {
+    public var focusMinutes: Int
+    public var shortBreakMinutes: Int
+    public var longBreakMinutes: Int
+
+    public static let standard = PomodoroDurations(
+        focusMinutes: 25,
+        shortBreakMinutes: 5,
+        longBreakMinutes: 15
+    )
+
+    public init(focusMinutes: Int, shortBreakMinutes: Int, longBreakMinutes: Int) {
+        self.focusMinutes = min(max(focusMinutes, 1), 120)
+        self.shortBreakMinutes = min(max(shortBreakMinutes, 1), 60)
+        self.longBreakMinutes = min(max(longBreakMinutes, 1), 60)
+    }
+
+    public var focusSeconds: Int { focusMinutes * 60 }
+    public var shortBreakSeconds: Int { shortBreakMinutes * 60 }
+    public var longBreakSeconds: Int { longBreakMinutes * 60 }
+
+    fileprivate func duration(for session: PomodoroSession) -> Int {
+        switch session {
+        case .focus: focusSeconds
+        case .shortBreak: shortBreakSeconds
+        case .longBreak: longBreakSeconds
         }
+    }
+
+    fileprivate static func load(from defaults: UserDefaults) -> PomodoroDurations {
+        let standard = PomodoroDurations.standard
+        return PomodoroDurations(
+            focusMinutes: defaults.object(forKey: "Pomodoro.focusMinutes") as? Int ?? standard.focusMinutes,
+            shortBreakMinutes: defaults.object(forKey: "Pomodoro.shortBreakMinutes") as? Int ?? standard.shortBreakMinutes,
+            longBreakMinutes: defaults.object(forKey: "Pomodoro.longBreakMinutes") as? Int ?? standard.longBreakMinutes
+        )
+    }
+
+    fileprivate func save(to defaults: UserDefaults) {
+        defaults.set(focusMinutes, forKey: "Pomodoro.focusMinutes")
+        defaults.set(shortBreakMinutes, forKey: "Pomodoro.shortBreakMinutes")
+        defaults.set(longBreakMinutes, forKey: "Pomodoro.longBreakMinutes")
     }
 }
 
 @MainActor
 public final class PomodoroTimer: ObservableObject {
     @Published public private(set) var session: PomodoroSession = .focus
-    @Published public private(set) var secondsRemaining = PomodoroSession.focus.duration
+    @Published public private(set) var secondsRemaining = PomodoroDurations.standard.focusSeconds
     @Published public private(set) var completedPomodoros = 0
     @Published public private(set) var isRunning = false
+    @Published public private(set) var durations: PomodoroDurations
+
+    private let userDefaults: UserDefaults
 
     private var endDate: Date?
     private var ticker: Timer?
+
+    public var sessionDuration: Int {
+        durations.duration(for: session)
+    }
 
     public var formattedTime: String {
         String(format: "%02d:%02d", secondsRemaining / 60, secondsRemaining % 60)
     }
 
-    public init() {}
+    public init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        durations = PomodoroDurations.load(from: userDefaults)
+        secondsRemaining = durations.focusSeconds
+    }
 
     public func start() {
         guard !isRunning else { return }
@@ -62,8 +110,21 @@ public final class PomodoroTimer: ObservableObject {
     public func reset() {
         pause()
         session = .focus
-        secondsRemaining = PomodoroSession.focus.duration
+        secondsRemaining = sessionDuration
         completedPomodoros = 0
+    }
+
+    public func updateDurations(_ durations: PomodoroDurations) {
+        guard !isRunning else { return }
+
+        let validatedDurations = PomodoroDurations(
+            focusMinutes: durations.focusMinutes,
+            shortBreakMinutes: durations.shortBreakMinutes,
+            longBreakMinutes: durations.longBreakMinutes
+        )
+        self.durations = validatedDurations
+        validatedDurations.save(to: userDefaults)
+        secondsRemaining = sessionDuration
     }
 
     private func tick() {
@@ -91,6 +152,6 @@ public final class PomodoroTimer: ObservableObject {
             completedPomodoros = 0
             session = .focus
         }
-        secondsRemaining = session.duration
+        secondsRemaining = sessionDuration
     }
 }

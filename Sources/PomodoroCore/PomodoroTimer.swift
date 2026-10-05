@@ -68,6 +68,9 @@ public final class PomodoroTimer: ObservableObject {
     @Published public private(set) var completedPomodoros = 0
     @Published public private(set) var isRunning = false
     @Published public private(set) var durations: PomodoroDurations
+    /// Length of the current session. Fixed when the session begins, so changing
+    /// `durations` only affects sessions that start afterwards.
+    @Published public private(set) var sessionDuration: Int
     /// When true (the default), the timer stops after a break instead of
     /// continuing into the next focus session.
     @Published public var stopAfterBreak: Bool {
@@ -80,17 +83,15 @@ public final class PomodoroTimer: ObservableObject {
     private var endDate: Date?
     private var ticker: Timer?
 
-    public var sessionDuration: Int {
-        durations.duration(for: session)
-    }
-
     public var formattedTime: String {
         String(format: "%02d:%02d", secondsRemaining / 60, secondsRemaining % 60)
     }
 
     public init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
-        durations = PomodoroDurations.load(from: userDefaults)
+        let durations = PomodoroDurations.load(from: userDefaults)
+        self.durations = durations
+        sessionDuration = durations.focusSeconds
         stopAfterBreak = userDefaults.object(forKey: Self.stopAfterBreakKey) as? Bool ?? true
         secondsRemaining = durations.focusSeconds
     }
@@ -117,12 +118,14 @@ public final class PomodoroTimer: ObservableObject {
     public func reset() {
         pause()
         session = .focus
-        secondsRemaining = sessionDuration
+        beginSession()
         completedPomodoros = 0
     }
 
+    /// Saves new session lengths. They apply to sessions that start afterwards;
+    /// a session already underway (running, or paused part-way) keeps its length.
     public func updateDurations(_ durations: PomodoroDurations) {
-        guard !isRunning else { return }
+        let sessionIsUntouched = !isRunning && secondsRemaining == sessionDuration
 
         let validatedDurations = PomodoroDurations(
             focusMinutes: durations.focusMinutes,
@@ -131,6 +134,13 @@ public final class PomodoroTimer: ObservableObject {
         )
         self.durations = validatedDurations
         validatedDurations.save(to: userDefaults)
+        if sessionIsUntouched {
+            beginSession()
+        }
+    }
+
+    private func beginSession() {
+        sessionDuration = durations.duration(for: session)
         secondsRemaining = sessionDuration
     }
 
@@ -168,6 +178,6 @@ public final class PomodoroTimer: ObservableObject {
             completedPomodoros = 0
             session = .focus
         }
-        secondsRemaining = sessionDuration
+        beginSession()
     }
 }

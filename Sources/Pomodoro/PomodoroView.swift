@@ -39,7 +39,6 @@ struct PomodoroView: View {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.plain)
-                .disabled(timer.isRunning)
                 .help("Configure session lengths")
             }
 
@@ -118,6 +117,12 @@ struct PomodoroView: View {
 
             Toggle("Stop after break", isOn: $timer.stopAfterBreak)
                 .help("When off, the next focus session starts automatically after a break")
+
+            if timer.isRunning {
+                Text("Changes apply to the next session.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
 
             Spacer(minLength: 0)
 

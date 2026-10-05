@@ -1,18 +1,18 @@
 ---
 name: landing
-description: Safely validate and land changes to this macOS Pomodoro app when asked to merge, commit, or publish work.
+description: Validate and transfer changes from a Delta worktree into the user's primary Pomodoro checkout when asked to land work.
 ---
 
 # Landing changes
 
-Use this skill when asked to land, merge, commit, or publish work in the Pomodoro repository. Do not interpret “land” as permission to push or publish: confirm the destination and operation when they are not explicit.
+In Delta, landing changes from a managed worktree is not complete when they are only committed in that worktree. The destination is the user's primary project checkout. A request to land authorizes transferring the changes there, but does not authorize publishing to an external remote.
 
 ## Before changing Git state
 
-1. Inspect the current branch, working tree, recent commits, and configured remotes.
+1. Inspect the current branch, working tree, recent commits, and configured remotes. Identify the primary checkout's remote from `git remote -v`; Delta commonly names it `local`, but verify its URL and do not assume.
 2. Review the complete diff, including untracked files that are part of the change. Identify unrelated or pre-existing edits and preserve them.
-3. Do not discard edits, rewrite shared history, force-push, or publish a branch without explicit authorization. Never assume a remote name or merge strategy.
-4. If the requested destination or whether to create a commit is unclear, ask before taking that step.
+3. Determine the intended destination branch in the primary checkout; do not assume the worktree's branch name is the destination. If the branch or primary-checkout remote cannot be verified, ask before transferring.
+4. Do not discard edits, rewrite shared history, force-push, or push to an external remote. If the primary checkout rejects an update because it has uncommitted edits, stop and preserve them rather than trying to overwrite or clean the checkout.
 
 ## Validate this repository
 
@@ -31,7 +31,8 @@ For UI changes, inspect the menu-bar entry point and `PomodoroView`, and verify 
 
 ## Complete the requested landing
 
-1. Run the applicable checks and inspect the final diff again.
-2. Perform only the explicitly requested Git operation. Keep unrelated working-tree changes out of commits.
-3. Verify the resulting branch/commit state and, if explicitly authorized, the published destination.
-4. Summarize what was landed, the resulting commit or destination, and the checks that passed or could not run.
+1. Run the applicable checks and inspect the final diff again. Keep unrelated working-tree changes out of the landing.
+2. Commit the intended changes in the Delta worktree if they are not already committed.
+3. Transfer the worktree's commit(s) to the verified primary-checkout remote and destination branch using a normal, non-force update (for example, `git push <primary-checkout-remote> HEAD:<destination-branch>`). Delta's `local` remote normally points to the original checkout; it is distinct from any shared upstream used for review or publication.
+4. Verify that the destination branch now contains the landed commit and confirm the primary checkout updated when that can be checked safely. A commit that exists only in the worktree is not a completed landing.
+5. Summarize the destination checkout and branch, landed commit, and checks that passed or could not run. If transfer fails, report the worktree commit separately and do not claim it was landed.

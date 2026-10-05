@@ -1,5 +1,5 @@
 ---
-name: landing
+name: land
 description: Validate and transfer changes from a Delta worktree into the user's primary Pomodoro checkout when asked to land work.
 ---
 

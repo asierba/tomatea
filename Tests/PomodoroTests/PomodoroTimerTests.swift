@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import PomodoroCore
 
@@ -136,8 +137,43 @@ final class PomodoroTimerTests: XCTestCase {
         timer.pause()
     }
 
+    func testStartingPlaysStartedSoundOnlyOnce() {
+        var sounds: [TimerSound] = []
+        let timer = PomodoroTimer(userDefaults: makeDefaults()) { sounds.append($0) }
+
+        timer.start()
+        timer.start()
+        timer.pause()
+
+        XCTAssertEqual(sounds, [.started])
+    }
+
+    func testEachSoundIsDistinct() {
+        let names = [TimerSound.started, .focusEnded, .breakEnded].map(\.systemSoundName)
+        XCTAssertEqual(Set(names).count, 3)
+        for name in names {
+            XCTAssertNotNil(NSSound(named: name), "\(name) is not available")
+        }
+    }
+
+    func testCompletingSessionsPlaysOnlyTheEndSound() {
+        var sounds: [TimerSound] = []
+        let timer = PomodoroTimer(userDefaults: makeDefaults()) { sounds.append($0) }
+        timer.start()
+        sounds.removeAll()
+
+        timer.completeSession()
+        XCTAssertEqual(sounds, [.focusEnded])
+        XCTAssertTrue(timer.isRunning, "the break starts automatically")
+
+        timer.completeSession()
+        XCTAssertEqual(sounds, [.focusEnded, .breakEnded])
+        XCTAssertFalse(timer.isRunning, "the timer stops after a break by default")
+        timer.pause()
+    }
+
     private func makeTimer() -> PomodoroTimer {
-        PomodoroTimer(userDefaults: makeDefaults())
+        PomodoroTimer(userDefaults: makeDefaults()) { _ in }
     }
 
     private func makeDefaults() -> UserDefaults {

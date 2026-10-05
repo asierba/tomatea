@@ -1,4 +1,3 @@
-import AppKit
 import Combine
 import Foundation
 
@@ -79,6 +78,7 @@ public final class PomodoroTimer: ObservableObject {
 
     private static let stopAfterBreakKey = "Pomodoro.stopAfterBreak"
     private let userDefaults: UserDefaults
+    private let playSound: @MainActor (TimerSound) -> Void
 
     private var endDate: Date?
     private var ticker: Timer?
@@ -87,8 +87,12 @@ public final class PomodoroTimer: ObservableObject {
         String(format: "%02d:%02d", secondsRemaining / 60, secondsRemaining % 60)
     }
 
-    public init(userDefaults: UserDefaults = .standard) {
+    public init(
+        userDefaults: UserDefaults = .standard,
+        playSound: @escaping @MainActor (TimerSound) -> Void = TimerSound.playSystemSound
+    ) {
         self.userDefaults = userDefaults
+        self.playSound = playSound
         let durations = PomodoroDurations.load(from: userDefaults)
         self.durations = durations
         sessionDuration = durations.focusSeconds
@@ -99,6 +103,11 @@ public final class PomodoroTimer: ObservableObject {
     public func start() {
         guard !isRunning else { return }
 
+        playSound(.started)
+        startCountdown()
+    }
+
+    private func startCountdown() {
         isRunning = true
         endDate = Date().addingTimeInterval(TimeInterval(secondsRemaining))
         ticker = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -149,7 +158,6 @@ public final class PomodoroTimer: ObservableObject {
 
         let timeRemaining = endDate.timeIntervalSinceNow
         guard timeRemaining > 0 else {
-            NSSound.beep()
             completeSession()
             return
         }
@@ -159,11 +167,14 @@ public final class PomodoroTimer: ObservableObject {
 
     /// Ends the running session and moves to the next one. Breaks start
     /// automatically; a new focus session starts only if `stopAfterBreak` is off.
+    /// The end-of-session sound is the only cue, even when the next session
+    /// starts by itself.
     func completeSession() {
         pause()
+        playSound(session == .focus ? .focusEnded : .breakEnded)
         advanceToNextSession()
         if session != .focus || !stopAfterBreak {
-            start()
+            startCountdown()
         }
     }
 

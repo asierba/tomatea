@@ -95,7 +95,7 @@ struct PomodoroView: View {
                 .buttonStyle(.plain)
 
                 Spacer()
-                Text("Session lengths")
+                Text("Settings")
                     .font(.headline)
                 Spacer()
             }
@@ -115,6 +115,9 @@ struct PomodoroView: View {
                 value: durationBinding(\.longBreakMinutes),
                 range: 1...60
             )
+
+            Toggle("Stop after break", isOn: $timer.stopAfterBreak)
+                .help("When off, the next focus session starts automatically after a break")
 
             Spacer(minLength: 0)
 

@@ -68,7 +68,13 @@ public final class PomodoroTimer: ObservableObject {
     @Published public private(set) var completedPomodoros = 0
     @Published public private(set) var isRunning = false
     @Published public private(set) var durations: PomodoroDurations
+    /// When true (the default), the timer stops after a break instead of
+    /// continuing into the next focus session.
+    @Published public var stopAfterBreak: Bool {
+        didSet { userDefaults.set(stopAfterBreak, forKey: Self.stopAfterBreakKey) }
+    }
 
+    private static let stopAfterBreakKey = "Pomodoro.stopAfterBreak"
     private let userDefaults: UserDefaults
 
     private var endDate: Date?
@@ -85,6 +91,7 @@ public final class PomodoroTimer: ObservableObject {
     public init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         durations = PomodoroDurations.load(from: userDefaults)
+        stopAfterBreak = userDefaults.object(forKey: Self.stopAfterBreakKey) as? Bool ?? true
         secondsRemaining = durations.focusSeconds
     }
 
@@ -132,13 +139,22 @@ public final class PomodoroTimer: ObservableObject {
 
         let timeRemaining = endDate.timeIntervalSinceNow
         guard timeRemaining > 0 else {
-            pause()
             NSSound.beep()
-            advanceToNextSession()
+            completeSession()
             return
         }
 
         secondsRemaining = Int(ceil(timeRemaining))
+    }
+
+    /// Ends the running session and moves to the next one. Breaks start
+    /// automatically; a new focus session starts only if `stopAfterBreak` is off.
+    func completeSession() {
+        pause()
+        advanceToNextSession()
+        if session != .focus || !stopAfterBreak {
+            start()
+        }
     }
 
     func advanceToNextSession() {

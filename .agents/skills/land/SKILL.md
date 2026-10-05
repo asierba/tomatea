@@ -27,7 +27,7 @@ swift build
 
 Report any command that could not run because the environment is not macOS or lacks the required Swift toolchain; do not present an unrun check as passing.
 
-When reviewing timer changes, check that the behavior remains consistent with the product contract in `README.md`: 25-minute focus sessions, 5-minute short breaks, and a 15-minute break after each fourth focus session. A completed session advances to the next session but does not start it automatically; Reset returns to a stopped focus session. Run or update tests for affected timer behavior.
+When reviewing timer changes, check that the behavior remains consistent with the product contract in `README.md`: 25-minute focus sessions, 5-minute short breaks, and a 15-minute break after each fourth focus session. A completed focus session advances to a break that starts automatically; a completed break advances to the next focus session, which starts automatically only when "Stop after break" is off (it is on by default); Reset returns to a stopped focus session. Run or update tests for affected timer behavior.
 
 For UI changes, inspect the menu-bar entry point and `PomodoroView`, and verify the relevant behavior in the macOS app when the environment permits. The package test suite alone does not validate menu-bar presentation or accessibility.
 

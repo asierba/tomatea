@@ -35,6 +35,49 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertEqual(timer.completedPomodoros, 0)
     }
 
+    func testBreaksAutoStartButFocusWaitsForUser() {
+        let timer = makeTimer()
+        timer.start()
+
+        timer.completeSession()
+        XCTAssertEqual(timer.session, .shortBreak)
+        XCTAssertTrue(timer.isRunning)
+
+        timer.completeSession()
+        XCTAssertEqual(timer.session, .focus)
+        XCTAssertFalse(timer.isRunning)
+    }
+
+    func testLongBreakAutoStarts() {
+        let timer = makeTimer()
+
+        for _ in 0..<3 {
+            timer.advanceToNextSession()
+            timer.advanceToNextSession()
+        }
+        timer.completeSession()
+
+        XCTAssertEqual(timer.session, .longBreak)
+        XCTAssertTrue(timer.isRunning)
+        timer.pause()
+    }
+
+    func testFocusAutoStartsAfterBreakWhenStopAfterBreakIsOff() {
+        let defaults = makeDefaults()
+        let timer = PomodoroTimer(userDefaults: defaults)
+        XCTAssertTrue(timer.stopAfterBreak)
+        timer.stopAfterBreak = false
+
+        timer.completeSession()
+        timer.completeSession()
+
+        XCTAssertEqual(timer.session, .focus)
+        XCTAssertTrue(timer.isRunning)
+        timer.pause()
+
+        XCTAssertFalse(PomodoroTimer(userDefaults: defaults).stopAfterBreak)
+    }
+
     func testResetReturnsToInitialFocusSession() {
         let timer = makeTimer()
         timer.advanceToNextSession()

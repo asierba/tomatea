@@ -14,9 +14,12 @@ swift run
 ```
 
 Click the timer in the menu bar to open the controls. Start or pause the current
-session, and use Reset to return to the beginning of the cycle. When a session
-ends, the next session is selected and waits for you to start it. Use the power
-button (or ⌘Q while the controls are open) to quit the app.
+session, and use Reset to return to the beginning of the cycle. When a focus
+session ends, the break starts automatically. When a break ends, the next focus
+session is selected and waits for you to start it, unless you turn off
+"Stop after break" in the settings, in which case the timer keeps running into
+the next focus session. Use the power button (or ⌘Q while the controls are
+open) to quit the app.
 Use the gear button to configure focus sessions (1–120 minutes), short breaks,
 and long breaks (1–60 minutes each). Settings are available while the timer is
 paused.

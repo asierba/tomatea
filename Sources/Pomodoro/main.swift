@@ -7,12 +7,18 @@ struct PomodoroApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var timer = PomodoroTimer()
 
+    /// Idle while the timer is stopped, otherwise the icon for the running session.
+    private var menuBarSymbol: String {
+        guard timer.isRunning else { return "timer" }
+        return timer.session == .focus ? "brain.head.profile" : "cup.and.saucer"
+    }
+
     var body: some Scene {
         MenuBarExtra {
             PomodoroView(timer: timer)
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: "timer")
+                Image(systemName: menuBarSymbol)
                 Text(timer.formattedTime)
                     .monospacedDigit()
             }

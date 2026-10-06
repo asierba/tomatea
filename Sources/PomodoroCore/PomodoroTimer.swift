@@ -117,7 +117,7 @@ public final class PomodoroTimer: ObservableObject {
         }
     }
 
-    public func pause() {
+    private func stopCountdown() {
         ticker?.invalidate()
         ticker = nil
         endDate = nil
@@ -129,16 +129,16 @@ public final class PomodoroTimer: ObservableObject {
     }
 
     public func reset() {
-        pause()
+        stopCountdown()
         session = .focus
         beginSession()
         completedPomodoros = 0
     }
 
     /// Saves new session lengths. They apply to sessions that start afterwards;
-    /// a session already underway (running, or paused part-way) keeps its length.
+    /// a running session keeps its length.
     public func updateDurations(_ durations: PomodoroDurations) {
-        let sessionIsUntouched = !isRunning && secondsRemaining == sessionDuration
+        let sessionIsUntouched = !isRunning
 
         let validatedDurations = PomodoroDurations(
             focusMinutes: durations.focusMinutes,
@@ -174,7 +174,7 @@ public final class PomodoroTimer: ObservableObject {
     /// The end-of-session sound is the only cue, even when the next session
     /// starts by itself.
     func completeSession() {
-        pause()
+        stopCountdown()
         playSound(session == .focus ? .focusEnded : .breakEnded)
         advanceToNextSession()
         if session != .focus || !stopAfterBreak {

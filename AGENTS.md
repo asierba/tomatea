@@ -18,7 +18,7 @@ Requires macOS and the Xcode Swift toolchain. If a check can't run, say so — d
 - `PomodoroCore` (library): all timer logic, testable without UI.
   - `PomodoroTimer`: `@MainActor ObservableObject`, single source of truth. Countdown uses a wall-clock `endDate` + 1s `Timer` ticker (not decrementing a counter).
   - `PomodoroDurations`: clamps values (focus 1–120, breaks 1–60) and persists to `UserDefaults` under `Pomodoro.*` keys.
-  - `sessionDuration` is fixed when a session begins; `updateDurations` only re-applies to the current session if it is untouched (not running, not partially elapsed).
+  - `sessionDuration` is fixed when a session begins; `updateDurations` only re-applies to the current session if it is untouched (not running).
   - `TimerSound`: maps events to macOS system sounds.
 - `Pomodoro` (executable): `main.swift` (app entry, menu bar label/icon, `.accessory` activation policy) and `PomodoroView` (timer + settings screens toggled in one popover).
 - Dependencies injected via `PomodoroTimer.init(userDefaults:playSound:)`. Tests use a unique `UserDefaults` suite and a no-op sound closure; `completeSession()` / `advanceToNextSession()` are `internal` and driven directly via `@testable import`.

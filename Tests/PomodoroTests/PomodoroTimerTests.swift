@@ -60,7 +60,7 @@ final class PomodoroTimerTests: XCTestCase {
 
         XCTAssertEqual(timer.session, .longBreak)
         XCTAssertTrue(timer.isRunning)
-        timer.pause()
+        timer.reset()
     }
 
     func testFocusAutoStartsAfterBreakWhenStopAfterBreakIsOff() {
@@ -74,7 +74,7 @@ final class PomodoroTimerTests: XCTestCase {
 
         XCTAssertEqual(timer.session, .focus)
         XCTAssertTrue(timer.isRunning)
-        timer.pause()
+        timer.reset()
 
         XCTAssertFalse(PomodoroTimer(userDefaults: defaults).stopAfterBreak)
     }
@@ -148,7 +148,7 @@ final class PomodoroTimerTests: XCTestCase {
         timer.advanceToNextSession()
         XCTAssertEqual(timer.sessionDuration, 7 * 60)
         XCTAssertEqual(timer.secondsRemaining, 7 * 60)
-        timer.pause()
+        timer.reset()
     }
 
     func testStartingPlaysStartedSoundOnlyOnce() {
@@ -157,7 +157,7 @@ final class PomodoroTimerTests: XCTestCase {
 
         timer.start()
         timer.start()
-        timer.pause()
+        timer.reset()
 
         XCTAssertEqual(sounds, [.started])
     }
@@ -183,7 +183,7 @@ final class PomodoroTimerTests: XCTestCase {
         timer.completeSession()
         XCTAssertEqual(sounds, [.focusEnded, .breakEnded])
         XCTAssertFalse(timer.isRunning, "the timer stops after a break by default")
-        timer.pause()
+        timer.reset()
     }
 
     private func makeTimer() -> PomodoroTimer {

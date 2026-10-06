@@ -57,21 +57,14 @@ struct PomodoroView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    timer.isRunning ? timer.pause() : timer.start()
+                    timer.startOrReset()
                 } label: {
-                    Label(timer.isRunning ? "Pause" : "Start", systemImage: timer.isRunning ? "pause.fill" : "play.fill")
+                    Label(timer.isRunning ? "Reset" : "Start", systemImage: timer.isRunning ? "arrow.counterclockwise" : "play.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(sessionColor)
                 .keyboardShortcut(.defaultAction)
-
-                Button("Reset", systemImage: "arrow.counterclockwise") {
-                    timer.reset()
-                }
-                .buttonStyle(.bordered)
-                .labelStyle(.iconOnly)
-                .help("Reset the timer")
 
                 Button("Quit", systemImage: "power") {
                     NSApplication.shared.terminate(nil)

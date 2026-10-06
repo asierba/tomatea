@@ -14,16 +14,17 @@ Requires macOS 13 or later and Xcode's Swift toolchain.
 swift run
 ```
 
-Click the timer in the menu bar to open the controls. Start or pause the current
-session, and use Reset to return to the beginning of the cycle. When a focus
+Click the timer in the menu bar to open the controls. Start the current session;
+while it runs, the same button becomes Reset, which returns to the beginning of
+the cycle (sessions can't be paused). When a focus
 session ends, the break starts automatically. When a break ends, the next focus
 session is selected and waits for you to start it, unless you turn off
 "Stop after break" in the settings, in which case the timer keeps running into
 the next focus session. Use the power button (or ⌘Q while the controls are
 open) to quit the app.
 Use the gear button to configure focus sessions (1–120 minutes), short breaks,
-and long breaks (1–60 minutes each). Settings are available while the timer is
-paused.
+and long breaks (1–60 minutes each). Changes made while a session
+is running apply to the next session.
 Press ⇧⌘P from any app to start the timer, or to reset it while it is running.
 The shortcut can be changed in the settings; it must include ⌘, ⌃ or ⌥.
 

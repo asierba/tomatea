@@ -13,15 +13,14 @@ swift test --filter PomodoroTimerTests/testBreaksAutoStartButFocusWaitsForUser
 
 Requires macOS and the Xcode Swift toolchain. If a check can't run, say so — don't report it as passing.
 
-## Architecture
+## Gotchas
 
-- `TomateaCore` (library): all timer logic, testable without UI.
-  - `PomodoroTimer`: `@MainActor ObservableObject`, single source of truth. Countdown uses a wall-clock `endDate` + 1s `Timer` ticker (not decrementing a counter).
-  - `PomodoroDurations`: clamps values (focus 1–120, breaks 1–60) and persists to `UserDefaults` under `Tomatea.*` keys.
-  - `sessionDuration` is fixed when a session begins; `updateDurations` only re-applies to the current session if it is untouched (not running).
-  - `TimerSound`: maps events to macOS system sounds.
-- `Tomatea` (executable): `main.swift` (app entry, menu bar label/icon, `.accessory` activation policy) and `PomodoroView` (timer + settings screens toggled in one popover).
-- Dependencies injected via `PomodoroTimer.init(userDefaults:playSound:)`. Tests use a unique `UserDefaults` suite and a no-op sound closure; `completeSession()` / `advanceToNextSession()` are `internal` and driven directly via `@testable import`.
+- `TomateaCore` holds all timer logic and has no UI; the `Tomatea` target is SwiftUI/AppKit only.
+- Countdown uses a wall-clock `endDate` + 1s `Timer` ticker, not a decrementing counter.
+- `sessionDuration` is fixed when a session begins; `updateDurations` only re-applies to the current session if it is untouched (not running).
+- Tests inject a unique `UserDefaults` suite and a no-op sound closure via `PomodoroTimer.init(userDefaults:playSound:)`, and drive the `internal` `completeSession()` / `advanceToNextSession()` via `@testable import`.
+- Menu bar PNGs in `Sources/Tomatea/Resources` and `Assets/AppIcon.icns` are generated from `Assets/AppIcon.png` by `scripts/make-menubar-icons.swift` and `scripts/make-icon.swift`; regenerate, don't hand-edit.
+- `scripts/install.sh` must copy the SwiftPM resource bundle into the `.app`, or `Bundle.module` crashes at launch.
 
 ## Product contract (keep consistent with README.md)
 

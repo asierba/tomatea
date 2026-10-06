@@ -11,7 +11,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "TomateaCore"),
-        .executableTarget(name: "Tomatea", dependencies: ["TomateaCore"]),
+        .executableTarget(name: "Tomatea", dependencies: ["TomateaCore"], resources: [.process("Resources")]),
         .testTarget(name: "TomateaTests", dependencies: ["TomateaCore"])
     ]
 )

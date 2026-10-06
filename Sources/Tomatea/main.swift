@@ -17,18 +17,12 @@ struct TomateaApp: App {
         globalHotKey = GlobalHotKey(settings: shortcutSettings) { timer.startOrReset() }
     }
 
-    /// Idle while the timer is stopped, otherwise the icon for the running session.
-    private var menuBarSymbol: String {
-        guard timer.isRunning else { return "timer" }
-        return timer.session == .focus ? "brain.head.profile" : "cup.and.saucer"
-    }
-
     var body: some Scene {
         MenuBarExtra {
             PomodoroView(timer: timer, shortcutSettings: shortcutSettings)
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: menuBarSymbol)
+                Image(nsImage: MenuBarIcon.image(isRunning: timer.isRunning, session: timer.session))
                 if timer.isRunning {
                     Text(timer.formattedTime)
                         .monospacedDigit()

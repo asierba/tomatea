@@ -19,8 +19,10 @@ struct PomodoroApp: App {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: menuBarSymbol)
-                Text(timer.formattedTime)
-                    .monospacedDigit()
+                if timer.isRunning {
+                    Text(timer.formattedTime)
+                        .monospacedDigit()
+                }
             }
             .help("\(timer.session.title) · \(timer.formattedTime)")
         }

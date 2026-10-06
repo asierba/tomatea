@@ -13,8 +13,8 @@ public enum TimerSound: Equatable {
 
     private var resourceName: String {
         switch self {
-        case .started: "RisingArpeggio"
-        case .focusEnded: "DingDong"
+        case .started: "FewTicks"
+        case .focusEnded: "OldTimerRing"
         case .breakEnded: "DongDing"
         }
     }

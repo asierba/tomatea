@@ -28,6 +28,12 @@ is running apply to the next session.
 Press ⇧⌘P from any app to start the timer, or to reset it while it is running.
 The shortcut can be changed in the settings; it must include ⌘, ⌃ or ⌥.
 
+Turn on "Turn on Focus while focusing" in the settings (off by default) to switch
+on a macOS Focus during focus sessions. macOS has no API for this, so create two
+shortcuts in the Shortcuts app: "Tomatea Focus On" (Set Focus → turn on, until
+turned off) and "Tomatea Focus Off" (Set Focus → turn off). Tomatea runs the first
+when a focus session starts and the second when it ends, is reset, or you quit.
+
 ## Install
 
 ```sh

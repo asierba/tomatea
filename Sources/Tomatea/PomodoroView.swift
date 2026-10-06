@@ -5,6 +5,7 @@ import SwiftUI
 struct PomodoroView: View {
     @ObservedObject var timer: PomodoroTimer
     @ObservedObject var shortcutSettings: GlobalShortcutSettings
+    @ObservedObject var focusMode: FocusModeController
     @StateObject private var launchAtLogin = LaunchAtLogin()
     @State private var showingSettings = false
     @Environment(\.colorScheme) private var colorScheme
@@ -134,6 +135,20 @@ struct PomodoroView: View {
             Toggle("Stop after break", isOn: $timer.stopAfterBreak)
                 .help("When off, the next focus session starts automatically after a break")
 
+            Toggle("Turn on Focus while focusing", isOn: Binding(
+                get: { focusMode.isEnabled },
+                set: { focusMode.setEnabled($0) }
+            ))
+            .help("Runs the \"\(FocusModeController.onShortcut)\" and \"\(FocusModeController.offShortcut)\" shortcuts, which you create in the Shortcuts app")
+
+            if !focusMode.missingShortcuts.isEmpty {
+                missingShortcutsHint
+            } else if let error = focusMode.errorMessage {
+                Text(error)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
             HStack {
                 Text("Start / reset shortcut")
                 Spacer()
@@ -159,7 +174,28 @@ struct PomodoroView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .onAppear(perform: launchAtLogin.refresh)
+        .onAppear {
+            launchAtLogin.refresh()
+            focusMode.refresh()
+        }
+    }
+
+    private var missingShortcutsHint: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label(
+                "Missing in Shortcuts: \(focusMode.missingShortcuts.map { "\"\($0)\"" }.joined(separator: ", "))",
+                systemImage: "exclamationmark.triangle.fill"
+            )
+            .font(.footnote)
+            .foregroundStyle(.orange)
+            .fixedSize(horizontal: false, vertical: true)
+
+            Button("Open Shortcuts") {
+                NSWorkspace.shared.open(URL(string: "shortcuts://")!)
+            }
+            .controlSize(.small)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func durationStepper(

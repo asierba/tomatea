@@ -66,8 +66,7 @@ struct PomodoroView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .labelStyle(.titleAndIcon)
-                .buttonStyle(.borderedProminent)
-                .tint(timer.session.color)
+                .buttonStyle(InkButtonStyle())
                 .keyboardShortcut(.defaultAction)
 
                 Button {

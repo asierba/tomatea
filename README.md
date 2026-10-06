@@ -35,8 +35,7 @@ scripts/install.sh
 ```
 
 Builds a release `Tomatea.app`, ad-hoc signs it, copies it to `/Applications`.
-Re-run to update. To start it at login, add it in
-System Settings → General → Login Items.
+Re-run to update. To start it at login, turn on "Open at login" in the settings.
 
 ## Test
 

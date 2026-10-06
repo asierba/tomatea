@@ -5,6 +5,7 @@ import SwiftUI
 struct PomodoroView: View {
     @ObservedObject var timer: PomodoroTimer
     @ObservedObject var shortcutSettings: GlobalShortcutSettings
+    @StateObject private var launchAtLogin = LaunchAtLogin()
     @State private var showingSettings = false
     @Environment(\.colorScheme) private var colorScheme
 
@@ -141,12 +142,25 @@ struct PomodoroView: View {
             }
             .help("Starts the timer from anywhere, or resets it while running")
 
+            Toggle("Open at login", isOn: Binding(
+                get: { launchAtLogin.isEnabled },
+                set: { launchAtLogin.setEnabled($0) }
+            ))
+            .help("Starts Tomatea automatically when you log in")
+
+            if let error = launchAtLogin.errorMessage {
+                Text(error)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+            }
+
             if timer.isRunning {
                 Text("Changes apply to the next session.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }
+        .onAppear(perform: launchAtLogin.refresh)
     }
 
     private func durationStepper(

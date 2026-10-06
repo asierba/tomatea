@@ -28,6 +28,16 @@ is running apply to the next session.
 Press ⇧⌘P from any app to start the timer, or to reset it while it is running.
 The shortcut can be changed in the settings; it must include ⌘, ⌃ or ⌥.
 
+## Install
+
+```sh
+scripts/install.sh
+```
+
+Builds a release `Pomodoro.app`, ad-hoc signs it, copies it to `/Applications`.
+Re-run to update. To start it at login, add it in
+System Settings → General → Login Items.
+
 ## Test
 
 ```sh

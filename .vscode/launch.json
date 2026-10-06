@@ -5,20 +5,20 @@
             "request": "launch",
             "args": [],
             "cwd": "${workspaceFolder:pomodoro-app}",
-            "name": "Debug Pomodoro",
-            "target": "Pomodoro",
+            "name": "Debug Tomatea",
+            "target": "Tomatea",
             "configuration": "debug",
-            "preLaunchTask": "swift: Build Debug Pomodoro"
+            "preLaunchTask": "swift: Build Debug Tomatea"
         },
         {
             "type": "swift",
             "request": "launch",
             "args": [],
             "cwd": "${workspaceFolder:pomodoro-app}",
-            "name": "Release Pomodoro",
-            "target": "Pomodoro",
+            "name": "Release Tomatea",
+            "target": "Tomatea",
             "configuration": "release",
-            "preLaunchTask": "swift: Build Release Pomodoro"
+            "preLaunchTask": "swift: Build Release Tomatea"
         }
     ]
 }

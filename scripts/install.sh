@@ -3,7 +3,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-APP_NAME=Pomodoro
+APP_NAME=Tomatea
 BUILD_DIR=.build/app
 APP="$BUILD_DIR/$APP_NAME.app"
 DEST="/Applications/$APP_NAME.app"
@@ -20,7 +20,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key><string>$APP_NAME</string>
-  <key>CFBundleIdentifier</key><string>com.asier.pomodoro</string>
+  <key>CFBundleIdentifier</key><string>com.asier.tomatea</string>
   <key>CFBundleName</key><string>$APP_NAME</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>

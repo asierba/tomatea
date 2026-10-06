@@ -1,9 +1,9 @@
 import AppKit
-import PomodoroCore
+import TomateaCore
 import SwiftUI
 
 @main
-struct PomodoroApp: App {
+struct TomateaApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var timer: PomodoroTimer
     @StateObject private var shortcutSettings: GlobalShortcutSettings

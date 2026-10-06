@@ -1,5 +1,5 @@
 import AppKit
-import PomodoroCore
+import TomateaCore
 import SwiftUI
 
 struct PomodoroView: View {
@@ -85,7 +85,7 @@ struct PomodoroView: View {
                 }
                 .buttonStyle(.bordered)
                 .keyboardShortcut("q")
-                .help("Quit Pomodoro")
+                .help("Quit Tomatea")
             }
             .labelStyle(.iconOnly)
             .controlSize(.large)

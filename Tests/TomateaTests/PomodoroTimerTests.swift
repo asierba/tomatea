@@ -1,6 +1,6 @@
 import AppKit
 import XCTest
-@testable import PomodoroCore
+@testable import TomateaCore
 
 @MainActor
 final class PomodoroTimerTests: XCTestCase {

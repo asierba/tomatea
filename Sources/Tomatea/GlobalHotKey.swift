@@ -1,7 +1,7 @@
 import AppKit
 import Carbon
 import Combine
-import PomodoroCore
+import TomateaCore
 
 /// Carbon hot keys work system-wide without the Accessibility permission an event tap would need.
 @MainActor

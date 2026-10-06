@@ -47,16 +47,16 @@ public struct PomodoroDurations: Equatable {
     fileprivate static func load(from defaults: UserDefaults) -> PomodoroDurations {
         let standard = PomodoroDurations.standard
         return PomodoroDurations(
-            focusMinutes: defaults.object(forKey: "Pomodoro.focusMinutes") as? Int ?? standard.focusMinutes,
-            shortBreakMinutes: defaults.object(forKey: "Pomodoro.shortBreakMinutes") as? Int ?? standard.shortBreakMinutes,
-            longBreakMinutes: defaults.object(forKey: "Pomodoro.longBreakMinutes") as? Int ?? standard.longBreakMinutes
+            focusMinutes: defaults.object(forKey: "Tomatea.focusMinutes") as? Int ?? standard.focusMinutes,
+            shortBreakMinutes: defaults.object(forKey: "Tomatea.shortBreakMinutes") as? Int ?? standard.shortBreakMinutes,
+            longBreakMinutes: defaults.object(forKey: "Tomatea.longBreakMinutes") as? Int ?? standard.longBreakMinutes
         )
     }
 
     fileprivate func save(to defaults: UserDefaults) {
-        defaults.set(focusMinutes, forKey: "Pomodoro.focusMinutes")
-        defaults.set(shortBreakMinutes, forKey: "Pomodoro.shortBreakMinutes")
-        defaults.set(longBreakMinutes, forKey: "Pomodoro.longBreakMinutes")
+        defaults.set(focusMinutes, forKey: "Tomatea.focusMinutes")
+        defaults.set(shortBreakMinutes, forKey: "Tomatea.shortBreakMinutes")
+        defaults.set(longBreakMinutes, forKey: "Tomatea.longBreakMinutes")
     }
 }
 
@@ -76,7 +76,7 @@ public final class PomodoroTimer: ObservableObject {
         didSet { userDefaults.set(stopAfterBreak, forKey: Self.stopAfterBreakKey) }
     }
 
-    private static let stopAfterBreakKey = "Pomodoro.stopAfterBreak"
+    private static let stopAfterBreakKey = "Tomatea.stopAfterBreak"
     private let userDefaults: UserDefaults
     private let playSound: @MainActor (TimerSound) -> Void
 

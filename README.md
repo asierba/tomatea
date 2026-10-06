@@ -1,4 +1,4 @@
-# Pomodoro
+# Tomatea
 
 A small macOS menu bar Pomodoro timer. It starts with 25-minute focus sessions,
 5-minute short breaks, and a 15-minute break after every fourth focus session.
@@ -34,7 +34,7 @@ The shortcut can be changed in the settings; it must include ⌘, ⌃ or ⌥.
 scripts/install.sh
 ```
 
-Builds a release `Pomodoro.app`, ad-hoc signs it, copies it to `/Applications`.
+Builds a release `Tomatea.app`, ad-hoc signs it, copies it to `/Applications`.
 Re-run to update. To start it at login, add it in
 System Settings → General → Login Items.
 

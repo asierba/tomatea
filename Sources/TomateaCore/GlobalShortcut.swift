@@ -39,7 +39,7 @@ public final class GlobalShortcutSettings: ObservableObject {
         didSet { save() }
     }
 
-    private static let key = "Pomodoro.globalShortcut"
+    private static let key = "Tomatea.globalShortcut"
     private let userDefaults: UserDefaults
 
     public init(userDefaults: UserDefaults = .standard) {

@@ -1,5 +1,5 @@
 import AppKit
-import PomodoroCore
+import TomateaCore
 import SwiftUI
 
 extension PomodoroSession {

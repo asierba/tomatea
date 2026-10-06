@@ -1,6 +1,6 @@
 import AppKit
 import Carbon
-import PomodoroCore
+import TomateaCore
 import SwiftUI
 
 struct ShortcutRecorder: View {

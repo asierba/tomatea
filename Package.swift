@@ -3,15 +3,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "Pomodoro",
+    name: "Tomatea",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "Pomodoro", targets: ["Pomodoro"]),
-        .library(name: "PomodoroCore", targets: ["PomodoroCore"])
+        .executable(name: "Tomatea", targets: ["Tomatea"]),
+        .library(name: "TomateaCore", targets: ["TomateaCore"])
     ],
     targets: [
-        .target(name: "PomodoroCore"),
-        .executableTarget(name: "Pomodoro", dependencies: ["PomodoroCore"]),
-        .testTarget(name: "PomodoroTests", dependencies: ["PomodoroCore"])
+        .target(name: "TomateaCore"),
+        .executableTarget(name: "Tomatea", dependencies: ["TomateaCore"]),
+        .testTarget(name: "TomateaTests", dependencies: ["TomateaCore"])
     ]
 )

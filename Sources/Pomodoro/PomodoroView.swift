@@ -6,6 +6,7 @@ struct PomodoroView: View {
     @ObservedObject var timer: PomodoroTimer
     @ObservedObject var shortcutSettings: GlobalShortcutSettings
     @State private var showingSettings = false
+    @Environment(\.colorScheme) private var colorScheme
 
     private var progress: Double {
         Double(timer.sessionDuration - timer.secondsRemaining) / Double(timer.sessionDuration)
@@ -19,66 +20,80 @@ struct PomodoroView: View {
                 timerView
             }
         }
-        .padding(22)
-        .frame(width: 300, height: 370)
+        .padding(16)
+        .frame(width: 300)
+        .background(colorScheme == .light ? Color.white : nil)
+        .background(WindowFitter(contentID: showingSettings))
     }
 
     private var timerView: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 16) {
             HStack {
-                Image(systemName: timer.session == .focus ? "brain.head.profile" : "cup.and.saucer")
-                    .foregroundStyle(sessionColor)
-                Text(timer.session.title)
-                    .font(.headline)
+                Text(timer.formattedTime)
+                    .font(.system(size: 46, weight: .light, design: .rounded).monospacedDigit())
+                    .contentTransition(.numericText())
+                    .accessibilityLabel("\(timer.session.title), \(timer.formattedTime) remaining")
                 Spacer()
-                Text("\(timer.completedPomodoros) of 4")
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundStyle(.secondary)
-                Button {
-                    showingSettings = true
-                } label: {
-                    Image(systemName: "gearshape")
-                }
-                .buttonStyle(.plain)
-                .help("Configure session lengths")
+                Text(timer.session.title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(timer.session.color)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(timer.session.color.opacity(0.14), in: Capsule())
             }
 
-            Text(timer.formattedTime)
-                .font(.system(size: 54, weight: .light, design: .rounded).monospacedDigit())
-                .contentTransition(.numericText())
-                .accessibilityLabel("\(timer.session.title), \(timer.formattedTime) remaining")
-
-            ProgressView(value: progress)
-                .tint(sessionColor)
-
-            Text(timer.isRunning ? "Stay focused" : "Ready when you are")
-                .font(.subheadline)
+            VStack(spacing: 6) {
+                CycleTrack(
+                    session: timer.session,
+                    completedPomodoros: timer.completedPomodoros,
+                    progress: progress
+                )
+                HStack {
+                    Text("\(timer.completedPomodoros) of 4 done")
+                    Spacer()
+                    Text("Long break")
+                }
+                .font(.caption)
                 .foregroundStyle(.secondary)
+            }
 
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Button {
                     timer.startOrReset()
                 } label: {
                     Label(timer.isRunning ? "Reset" : "Start", systemImage: timer.isRunning ? "arrow.counterclockwise" : "play.fill")
                         .frame(maxWidth: .infinity)
                 }
+                .labelStyle(.titleAndIcon)
                 .buttonStyle(.borderedProminent)
-                .tint(sessionColor)
+                .tint(timer.session.color)
                 .keyboardShortcut(.defaultAction)
 
-                Button("Quit", systemImage: "power") {
-                    NSApplication.shared.terminate(nil)
+                Button {
+                    showingSettings = true
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
                 }
                 .buttonStyle(.bordered)
-                .labelStyle(.iconOnly)
+                .help("Configure session lengths")
+
+                Button {
+                    NSApplication.shared.terminate(nil)
+                } label: {
+                    Label("Quit", systemImage: "power")
+                        .foregroundStyle(.red)
+                }
+                .buttonStyle(.bordered)
                 .keyboardShortcut("q")
                 .help("Quit Pomodoro")
             }
+            .labelStyle(.iconOnly)
+            .controlSize(.large)
         }
     }
 
     private var settingsView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 10) {
             HStack {
                 Button {
                     showingSettings = false
@@ -91,6 +106,13 @@ struct PomodoroView: View {
                 Text("Settings")
                     .font(.headline)
                 Spacer()
+
+                Button("Restore defaults") {
+                    timer.updateDurations(.standard)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Restore default session lengths")
             }
 
             durationStepper(
@@ -124,13 +146,6 @@ struct PomodoroView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-
-            Spacer(minLength: 0)
-
-            Button("Restore defaults") {
-                timer.updateDurations(.standard)
-            }
-            .buttonStyle(.bordered)
         }
     }
 
@@ -172,9 +187,5 @@ struct PomodoroView: View {
                 timer.updateDurations(updated)
             }
         )
-    }
-
-    private var sessionColor: Color {
-        timer.session == .focus ? .orange : .teal
     }
 }

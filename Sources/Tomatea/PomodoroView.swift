@@ -101,71 +101,68 @@ struct PomodoroView: View {
                 } label: {
                     Label("Timer", systemImage: "chevron.left")
                 }
-                .buttonStyle(.plain)
 
-                Spacer()
-                Text("Settings")
-                    .font(.headline)
                 Spacer()
 
                 Button("Restore defaults") {
                     timer.updateDurations(.standard)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
                 .help("Restore default session lengths")
             }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
 
-            durationStepper(
-                "Focus",
-                value: durationBinding(\.focusMinutes),
-                range: 1...120
-            )
-            durationStepper(
-                "Short break",
-                value: durationBinding(\.shortBreakMinutes),
-                range: 1...60
-            )
-            durationStepper(
-                "Long break",
-                value: durationBinding(\.longBreakMinutes),
-                range: 1...60
-            )
+            SettingsCard {
+                durationRow(.focus, systemImage: "target", keyPath: \.focusMinutes, range: 1...120)
+                durationRow(.shortBreak, systemImage: "cup.and.saucer.fill", keyPath: \.shortBreakMinutes, range: 1...60)
+                durationRow(.longBreak, systemImage: "moon.fill", keyPath: \.longBreakMinutes, range: 1...60)
+            }
 
-            Toggle("Stop after break", isOn: $timer.stopAfterBreak)
+            SettingsCard {
+                SettingsRow(title: "Stop after break", systemImage: "pause.fill", tint: .gray) {
+                    settingsSwitch($timer.stopAfterBreak)
+                }
                 .help("When off, the next focus session starts automatically after a break")
 
-            Toggle("Turn on Focus while focusing", isOn: Binding(
-                get: { focusMode.isEnabled },
-                set: { focusMode.setEnabled($0) }
-            ))
-            .help("Runs the \"\(FocusModeController.onShortcut)\" and \"\(FocusModeController.offShortcut)\" shortcuts, which you create in the Shortcuts app")
+                SettingsRow(title: "Turn on Focus while focusing", systemImage: "bell.slash.fill", tint: .purple) {
+                    settingsSwitch(Binding(
+                        get: { focusMode.isEnabled },
+                        set: { focusMode.setEnabled($0) }
+                    ))
+                }
+                .help("Runs the \"\(FocusModeController.onShortcut)\" and \"\(FocusModeController.offShortcut)\" shortcuts, which you create in the Shortcuts app")
 
-            if !focusMode.missingShortcuts.isEmpty {
-                missingShortcutsHint
-            } else if let error = focusMode.errorMessage {
-                Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                if !focusMode.missingShortcuts.isEmpty {
+                    missingShortcutsHint
+                        .padding(6)
+                } else if let error = focusMode.errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .padding(6)
+                }
             }
 
-            HStack {
-                Text("Start / reset shortcut")
-                Spacer()
-                ShortcutRecorder(shortcut: $shortcutSettings.shortcut)
-            }
-            .help("Starts the timer from anywhere, or resets it while running")
+            SettingsCard {
+                SettingsRow(title: "Start / reset shortcut", systemImage: "keyboard", tint: .gray) {
+                    ShortcutRecorder(shortcut: $shortcutSettings.shortcut)
+                }
+                .help("Starts the timer from anywhere, or resets it while running")
 
-            Toggle("Open at login", isOn: Binding(
-                get: { launchAtLogin.isEnabled },
-                set: { launchAtLogin.setEnabled($0) }
-            ))
-            .help("Starts Tomatea automatically when you log in")
+                SettingsRow(title: "Open at login", systemImage: "power", tint: .gray) {
+                    settingsSwitch(Binding(
+                        get: { launchAtLogin.isEnabled },
+                        set: { launchAtLogin.setEnabled($0) }
+                    ))
+                }
+                .help("Starts Tomatea automatically when you log in")
 
-            if let error = launchAtLogin.errorMessage {
-                Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                if let error = launchAtLogin.errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .padding(6)
+                }
             }
 
             if timer.isRunning {
@@ -198,25 +195,35 @@ struct PomodoroView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private func durationStepper(
-        _ title: String,
-        value: Binding<Int>,
+    private func durationRow(
+        _ session: PomodoroSession,
+        systemImage: String,
+        keyPath: WritableKeyPath<PomodoroDurations, Int>,
         range: ClosedRange<Int>
     ) -> some View {
-        Stepper(value: value, in: range) {
-            HStack {
-                Text(title)
-                Spacer()
-                TextField(title, value: clamped(value, to: range), format: .number)
+        let value = durationBinding(keyPath)
+        return SettingsRow(title: session.title, systemImage: systemImage, tint: session.color) {
+            HStack(spacing: 4) {
+                TextField(session.title, value: clamped(value, to: range), format: .number)
                     .labelsHidden()
                     .textFieldStyle(.roundedBorder)
                     .multilineTextAlignment(.trailing)
                     .monospacedDigit()
-                    .frame(width: 52)
+                    .frame(width: 44)
                 Text("min")
                     .foregroundStyle(.secondary)
+                Stepper(session.title, value: value, in: range)
+                    .labelsHidden()
             }
         }
+    }
+
+    private func settingsSwitch(_ isOn: Binding<Bool>) -> some View {
+        Toggle("", isOn: isOn)
+            .labelsHidden()
+            .toggleStyle(.switch)
+            .controlSize(.mini)
+            .tint(PomodoroSession.focus.color)
     }
 
     /// Typed values can fall outside the range the stepper enforces, so clamp them on write.

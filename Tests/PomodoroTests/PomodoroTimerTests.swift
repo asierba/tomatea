@@ -91,6 +91,20 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertFalse(timer.isRunning)
     }
 
+    func testStartOrResetStartsWhenStoppedAndResetsWhenRunning() {
+        let timer = makeTimer()
+        timer.advanceToNextSession()
+
+        timer.startOrReset()
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertEqual(timer.session, .shortBreak)
+
+        timer.startOrReset()
+        XCTAssertFalse(timer.isRunning)
+        XCTAssertEqual(timer.session, .focus)
+        XCTAssertEqual(timer.completedPomodoros, 0)
+    }
+
     func testConfiguredDurationsApplyToEachSessionAndPersist() {
         let defaults = makeDefaults()
         let timer = PomodoroTimer(userDefaults: defaults)

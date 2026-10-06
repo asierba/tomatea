@@ -124,6 +124,10 @@ public final class PomodoroTimer: ObservableObject {
         isRunning = false
     }
 
+    public func startOrReset() {
+        isRunning ? reset() : start()
+    }
+
     public func reset() {
         pause()
         session = .focus

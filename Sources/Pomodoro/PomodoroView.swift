@@ -4,6 +4,7 @@ import SwiftUI
 
 struct PomodoroView: View {
     @ObservedObject var timer: PomodoroTimer
+    @ObservedObject var shortcutSettings: GlobalShortcutSettings
     @State private var showingSettings = false
 
     private var progress: Double {
@@ -19,7 +20,7 @@ struct PomodoroView: View {
             }
         }
         .padding(22)
-        .frame(width: 300, height: 330)
+        .frame(width: 300, height: 370)
     }
 
     private var timerView: some View {
@@ -117,6 +118,13 @@ struct PomodoroView: View {
 
             Toggle("Stop after break", isOn: $timer.stopAfterBreak)
                 .help("When off, the next focus session starts automatically after a break")
+
+            HStack {
+                Text("Start / reset shortcut")
+                Spacer()
+                ShortcutRecorder(shortcut: $shortcutSettings.shortcut)
+            }
+            .help("Starts the timer from anywhere, or resets it while running")
 
             if timer.isRunning {
                 Text("Changes apply to the next session.")

@@ -24,6 +24,8 @@ open) to quit the app.
 Use the gear button to configure focus sessions (1–120 minutes), short breaks,
 and long breaks (1–60 minutes each). Settings are available while the timer is
 paused.
+Press ⇧⌘P from any app to start the timer, or to reset it while it is running.
+The shortcut can be changed in the settings; it must include ⌘, ⌃ or ⌥.
 
 ## Test
 

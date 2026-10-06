@@ -163,10 +163,10 @@ final class PomodoroTimerTests: XCTestCase {
     }
 
     func testEachSoundIsDistinct() {
-        let names = [TimerSound.started, .focusEnded, .breakEnded].map(\.systemSoundName)
-        XCTAssertEqual(Set(names).count, 3)
-        for name in names {
-            XCTAssertNotNil(NSSound(named: name), "\(name) is not available")
+        let urls = [TimerSound.started, .focusEnded, .breakEnded].map(\.fileURL)
+        XCTAssertEqual(Set(urls).count, 3)
+        for url in urls {
+            XCTAssertNotNil(url.flatMap { NSSound(contentsOf: $0, byReference: true) }, "\(String(describing: url)) is not playable")
         }
     }
 

@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "TomateaCore", targets: ["TomateaCore"])
     ],
     targets: [
-        .target(name: "TomateaCore"),
+        .target(name: "TomateaCore", resources: [.process("Resources")]),
         .executableTarget(name: "Tomatea", dependencies: ["TomateaCore"], resources: [.process("Resources")]),
         .testTarget(name: "TomateaTests", dependencies: ["TomateaCore"])
     ]

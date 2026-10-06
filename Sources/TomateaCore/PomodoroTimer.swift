@@ -89,7 +89,7 @@ public final class PomodoroTimer: ObservableObject {
 
     public init(
         userDefaults: UserDefaults = .standard,
-        playSound: @escaping @MainActor (TimerSound) -> Void = TimerSound.playSystemSound
+        playSound: @escaping @MainActor (TimerSound) -> Void = TimerSound.playBundledSound
     ) {
         self.userDefaults = userDefaults
         self.playSound = playSound

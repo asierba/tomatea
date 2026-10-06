@@ -3,7 +3,7 @@
 A small macOS menu bar Pomodoro timer. It starts with 25-minute focus sessions,
 5-minute short breaks, and a 15-minute break after every fourth focus session.
 Session lengths can be changed from the timer's settings and are saved between
-launches. Distinct system sounds play when you start the timer, when a focus
+launches. Distinct bundled sounds play when you start the timer, when a focus
 session ends, and when a break ends.
 
 ## Run

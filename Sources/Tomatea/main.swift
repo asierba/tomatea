@@ -16,7 +16,7 @@ struct TomateaApp: App {
         _timer = StateObject(wrappedValue: timer)
         _shortcutSettings = StateObject(wrappedValue: shortcutSettings)
         _focusMode = StateObject(wrappedValue: FocusModeController(timer: timer))
-        globalHotKey = GlobalHotKey(settings: shortcutSettings) { timer.startOrReset() }
+        globalHotKey = GlobalHotKey(settings: shortcutSettings) { timer.performPrimaryAction() }
     }
 
     var body: some Scene {

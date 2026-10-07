@@ -15,6 +15,12 @@ public enum PomodoroSession: Equatable {
     }
 }
 
+public enum PrimaryAction: Equatable {
+    case start
+    case stop
+    case skipBreak
+}
+
 public struct PomodoroDurations: Equatable {
     public var focusMinutes: Int
     public var shortBreakMinutes: Int
@@ -124,8 +130,34 @@ public final class PomodoroTimer: ObservableObject {
         isRunning = false
     }
 
-    public func startOrReset() {
-        isRunning ? reset() : start()
+    public var primaryAction: PrimaryAction {
+        guard isRunning else { return .start }
+        return session == .focus ? .stop : .skipBreak
+    }
+
+    public var hasProgress: Bool {
+        isRunning || completedPomodoros > 0
+    }
+
+    public func performPrimaryAction() {
+        switch primaryAction {
+        case .start: start()
+        case .stop: stop()
+        case .skipBreak: skipBreak()
+        }
+    }
+
+    public func stop() {
+        stopCountdown()
+        beginSession()
+    }
+
+    public func skipBreak() {
+        guard session != .focus else { return }
+
+        stopCountdown()
+        advanceToNextSession()
+        start()
     }
 
     public func reset() {

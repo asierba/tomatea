@@ -61,14 +61,24 @@ struct PomodoroView: View {
 
             HStack(spacing: 8) {
                 Button {
-                    timer.startOrReset()
+                    timer.performPrimaryAction()
                 } label: {
-                    Label(timer.isRunning ? "Reset" : "Start", systemImage: timer.isRunning ? "arrow.counterclockwise" : "play.fill")
+                    primaryActionLabel
                         .frame(maxWidth: .infinity)
                 }
                 .labelStyle(.titleAndIcon)
                 .buttonStyle(InkButtonStyle())
                 .keyboardShortcut(.defaultAction)
+
+                if timer.hasProgress {
+                    Button {
+                        timer.reset()
+                    } label: {
+                        Label("Reset", systemImage: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .help("Reset the cycle")
+                }
 
                 Button {
                     showingSettings = true
@@ -90,6 +100,14 @@ struct PomodoroView: View {
             }
             .labelStyle(.iconOnly)
             .controlSize(.large)
+        }
+    }
+
+    private var primaryActionLabel: some View {
+        switch timer.primaryAction {
+        case .start: Label("Start", systemImage: "play.fill")
+        case .stop: Label("Stop", systemImage: "stop.fill")
+        case .skipBreak: Label("Skip break", systemImage: "forward.end.fill")
         }
     }
 
@@ -144,10 +162,10 @@ struct PomodoroView: View {
             }
 
             SettingsCard {
-                SettingsRow(title: "Start / reset shortcut", systemImage: "keyboard", tint: .gray) {
+                SettingsRow(title: "Start / stop / skip shortcut", systemImage: "keyboard", tint: .gray) {
                     ShortcutRecorder(shortcut: $shortcutSettings.shortcut)
                 }
-                .help("Starts the timer from anywhere, or resets it while running")
+                .help("Starts the timer from anywhere, stops a focus session, or skips a break")
 
                 SettingsRow(title: "Open at login", systemImage: "power", tint: .gray) {
                     settingsSwitch(Binding(

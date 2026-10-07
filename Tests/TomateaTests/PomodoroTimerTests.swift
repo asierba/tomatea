@@ -91,18 +91,75 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertFalse(timer.isRunning)
     }
 
-    func testStartOrResetStartsWhenStoppedAndResetsWhenRunning() {
+    func testPrimaryActionStartsWhenStopped() {
+        let timer = makeTimer()
+
+        XCTAssertEqual(timer.primaryAction, .start)
+        timer.performPrimaryAction()
+
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertEqual(timer.session, .focus)
+        timer.reset()
+    }
+
+    func testPrimaryActionStopsFocusAndKeepsCycle() {
         let timer = makeTimer()
         timer.advanceToNextSession()
+        timer.advanceToNextSession()
+        timer.start()
 
-        timer.startOrReset()
-        XCTAssertTrue(timer.isRunning)
-        XCTAssertEqual(timer.session, .shortBreak)
+        XCTAssertEqual(timer.primaryAction, .stop)
+        timer.performPrimaryAction()
 
-        timer.startOrReset()
         XCTAssertFalse(timer.isRunning)
         XCTAssertEqual(timer.session, .focus)
+        XCTAssertEqual(timer.secondsRemaining, 25 * 60)
+        XCTAssertEqual(timer.completedPomodoros, 1)
+    }
+
+    func testPrimaryActionSkipsBreakAndStartsFocus() {
+        let timer = makeTimer()
+        timer.start()
+        timer.completeSession()
+
+        XCTAssertEqual(timer.primaryAction, .skipBreak)
+        timer.performPrimaryAction()
+
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertEqual(timer.session, .focus)
+        XCTAssertEqual(timer.secondsRemaining, 25 * 60)
+        XCTAssertEqual(timer.completedPomodoros, 1)
+        timer.reset()
+    }
+
+    func testSkippingLongBreakStartsNewCycle() {
+        let timer = makeTimer()
+        for _ in 0..<3 {
+            timer.advanceToNextSession()
+            timer.advanceToNextSession()
+        }
+        timer.completeSession()
+
+        timer.skipBreak()
+
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertEqual(timer.session, .focus)
         XCTAssertEqual(timer.completedPomodoros, 0)
+        timer.reset()
+    }
+
+    func testHasProgressWhenRunningOrCycleStarted() {
+        let timer = makeTimer()
+        XCTAssertFalse(timer.hasProgress)
+
+        timer.start()
+        XCTAssertTrue(timer.hasProgress)
+
+        timer.stop()
+        XCTAssertFalse(timer.hasProgress)
+
+        timer.advanceToNextSession()
+        XCTAssertTrue(timer.hasProgress)
     }
 
     func testConfiguredDurationsApplyToEachSessionAndPersist() {

@@ -27,5 +27,6 @@ Requires macOS and the Xcode Swift toolchain. If a check can't run, say so — d
 - 25 min focus, 5 min short break, 15 min long break after every 4th focus.
 - Focus completes → break starts automatically.
 - Break completes → next focus selected; auto-starts only if "Stop after break" is off (default on).
+- Main button / global shortcut: Start when stopped; Stop during focus (stopped focus, cycle count kept); Skip break during a break (next focus starts immediately).
 - Reset → stopped focus session, cycle count 0.
 - Update tests for any timer behaviour change. UI/menu bar changes aren't covered by tests — verify in the running app when possible.

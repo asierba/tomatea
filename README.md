@@ -43,7 +43,7 @@ the next focus session waits for you to start it, unless you turn off
 
 ### Global shortcut
 
-Press ⇧⌘P from any app to do the same as the big button. The shortcut can be
+Press ⌃⌘P from any app to do the same as the big button. The shortcut can be
 changed in the settings; it must include ⌘, ⌃ or ⌥.
 
 ### Settings

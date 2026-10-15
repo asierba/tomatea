@@ -9,7 +9,7 @@ public struct GlobalShortcut: Equatable, Codable {
     private static let requiredModifiers: NSEvent.ModifierFlags = [.command, .control, .option]
     private static let supportedModifiers: NSEvent.ModifierFlags = [.command, .control, .option, .shift]
 
-    public static let standard = GlobalShortcut(keyCode: 35, key: "P", modifiers: [.command, .shift])!
+    public static let standard = GlobalShortcut(keyCode: 35, key: "P", modifiers: [.command, .control])!
 
     /// Fails unless the shortcut uses ⌘, ⌃ or ⌥, so it cannot swallow ordinary typing.
     public init?(keyCode: UInt16, key: String, modifiers: NSEvent.ModifierFlags) {

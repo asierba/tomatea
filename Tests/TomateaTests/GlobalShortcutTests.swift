@@ -8,7 +8,7 @@ final class GlobalShortcutTests: XCTestCase {
         let settings = GlobalShortcutSettings(userDefaults: makeDefaults())
 
         XCTAssertEqual(settings.shortcut, .standard)
-        XCTAssertEqual(settings.shortcut.displayName, "⇧⌘P")
+        XCTAssertEqual(settings.shortcut.displayName, "⌃⌘P")
     }
 
     func testChangedShortcutPersists() {

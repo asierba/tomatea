@@ -72,6 +72,14 @@ scripts/install.sh
 Builds a release `Tomatea.app`, ad-hoc signs it, copies it to `/Applications`.
 Re-run to update. To start it at login, turn on "Open at login" in the settings.
 
+## Development setup
+
+Once per clone, enable the pre-commit hook that runs the tests:
+
+```sh
+scripts/setup.sh
+```
+
 ## Run in development
 
 ```sh

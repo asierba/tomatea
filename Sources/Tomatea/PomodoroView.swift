@@ -36,24 +36,25 @@ struct PomodoroView: View {
                     .contentTransition(.numericText())
                     .accessibilityLabel("\(timer.session.title), \(timer.formattedTime) remaining")
                 Spacer()
-                Text(timer.session.title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(timer.session.color)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(timer.session.color.opacity(0.14), in: Capsule())
+                if timer.session == .longBreak {
+                    longBreakMenu
+                } else {
+                    sessionPill
+                }
             }
 
             VStack(spacing: 6) {
                 CycleTrack(
                     session: timer.session,
                     completedPomodoros: timer.completedPomodoros,
+                    cycleLength: timer.cycleLength,
+                    isLongBreakSwapped: timer.isLongBreakSwapped,
                     progress: progress
                 )
                 HStack {
-                    Text("\(timer.completedPomodoros) of 4 done")
+                    Text("\(timer.completedPomodoros) of \(timer.cycleLength) done")
                     Spacer()
-                    Text("Long break")
+                    Text(cycleEndCaption)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -100,6 +101,47 @@ struct PomodoroView: View {
             }
             .labelStyle(.iconOnly)
             .controlSize(.large)
+        }
+    }
+
+    private var sessionPill: some View {
+        pillLabel(Text(timer.session.title))
+    }
+
+    private var longBreakMenu: some View {
+        Menu {
+            Button("Swap for short break") {
+                timer.swapLongBreak()
+            }
+            Button("Postpone long break") {
+                timer.postponeLongBreak()
+            }
+        } label: {
+            pillLabel(Text("\(timer.session.title) \(Image(systemName: "chevron.down"))"))
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("Swap for a short break, or postpone the long break until after the next focus session")
+    }
+
+    private func pillLabel(_ text: Text) -> some View {
+        text
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(timer.session.color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(timer.session.color.opacity(0.14), in: Capsule())
+    }
+
+    private var cycleEndCaption: String {
+        if timer.isLongBreakSwapped {
+            "New cycle next"
+        } else if timer.isLongBreakPostponed {
+            "Long break postponed"
+        } else {
+            "Long break"
         }
     }
 

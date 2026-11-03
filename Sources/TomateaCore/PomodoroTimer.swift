@@ -71,6 +71,7 @@ public final class PomodoroTimer: ObservableObject {
     @Published public private(set) var session: PomodoroSession = .focus
     @Published public private(set) var secondsRemaining = PomodoroDurations.standard.focusSeconds
     @Published public private(set) var completedPomodoros = 0
+    @Published public private(set) var cycleLength = PomodoroTimer.standardCycleLength
     @Published public private(set) var isRunning = false
     @Published public private(set) var durations: PomodoroDurations
     /// Length of the current session. Fixed when the session begins, so changing
@@ -82,6 +83,7 @@ public final class PomodoroTimer: ObservableObject {
         didSet { userDefaults.set(stopAfterBreak, forKey: Self.stopAfterBreakKey) }
     }
 
+    public static let standardCycleLength = 4
     private static let stopAfterBreakKey = "Tomatea.stopAfterBreak"
     private let userDefaults: UserDefaults
     private let playSound: @MainActor (TimerSound) -> Void
@@ -135,6 +137,14 @@ public final class PomodoroTimer: ObservableObject {
         return session == .focus ? .stop : .skipBreak
     }
 
+    public var isLongBreakPostponed: Bool {
+        cycleLength > Self.standardCycleLength
+    }
+
+    public var isLongBreakSwapped: Bool {
+        session == .shortBreak && completedPomodoros == cycleLength
+    }
+
     public var hasProgress: Bool {
         isRunning || completedPomodoros > 0
     }
@@ -164,7 +174,35 @@ public final class PomodoroTimer: ObservableObject {
         stopCountdown()
         session = .focus
         beginSession()
+        startNewCycle()
+    }
+
+    /// Takes a short break instead of the long one; the cycle restarts afterwards.
+    public func swapLongBreak() {
+        guard session == .longBreak else { return }
+
+        shortenToShortBreak()
+    }
+
+    public func postponeLongBreak() {
+        guard session == .longBreak else { return }
+
+        cycleLength += 1
+        shortenToShortBreak()
+    }
+
+    /// Keeps the time already spent on the break instead of restarting the countdown.
+    private func shortenToShortBreak() {
+        let reduction = sessionDuration - durations.shortBreakSeconds
+        session = .shortBreak
+        sessionDuration = durations.shortBreakSeconds
+        secondsRemaining = max(secondsRemaining - reduction, 0)
+        endDate = endDate?.addingTimeInterval(-TimeInterval(reduction))
+    }
+
+    private func startNewCycle() {
         completedPomodoros = 0
+        cycleLength = Self.standardCycleLength
     }
 
     /// Saves new session lengths. They apply to sessions that start afterwards;
@@ -218,11 +256,14 @@ public final class PomodoroTimer: ObservableObject {
         switch session {
         case .focus:
             completedPomodoros += 1
-            session = completedPomodoros == 4 ? .longBreak : .shortBreak
+            session = completedPomodoros == cycleLength ? .longBreak : .shortBreak
         case .shortBreak:
+            if isLongBreakSwapped {
+                startNewCycle()
+            }
             session = .focus
         case .longBreak:
-            completedPomodoros = 0
+            startNewCycle()
             session = .focus
         }
         beginSession()

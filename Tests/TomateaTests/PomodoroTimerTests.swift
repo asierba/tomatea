@@ -148,6 +148,81 @@ final class PomodoroTimerTests: XCTestCase {
         timer.reset()
     }
 
+    func testSwappingLongBreakTakesShortBreakThenStartsNewCycle() {
+        let timer = makeTimer()
+        advanceToLongBreak(timer)
+
+        timer.swapLongBreak()
+        XCTAssertEqual(timer.session, .shortBreak)
+        XCTAssertEqual(timer.sessionDuration, 5 * 60)
+        XCTAssertEqual(timer.secondsRemaining, 5 * 60)
+        XCTAssertEqual(timer.completedPomodoros, 4)
+
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.session, .focus)
+        XCTAssertEqual(timer.completedPomodoros, 0)
+        XCTAssertEqual(timer.cycleLength, 4)
+    }
+
+    func testPostponingLongBreakMovesItAfterNextFocusRepeatedly() {
+        let timer = makeTimer()
+        advanceToLongBreak(timer)
+
+        timer.postponeLongBreak()
+        XCTAssertEqual(timer.session, .shortBreak)
+        XCTAssertEqual(timer.secondsRemaining, 5 * 60)
+        XCTAssertTrue(timer.isLongBreakPostponed)
+
+        timer.advanceToNextSession()
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.session, .longBreak)
+        XCTAssertEqual(timer.completedPomodoros, 5)
+
+        timer.postponeLongBreak()
+        timer.advanceToNextSession()
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.session, .longBreak)
+        XCTAssertEqual(timer.completedPomodoros, 6)
+
+        timer.advanceToNextSession()
+        XCTAssertEqual(timer.completedPomodoros, 0)
+        XCTAssertFalse(timer.isLongBreakPostponed)
+    }
+
+    func testSwappingRunningLongBreakKeepsElapsedTime() {
+        let timer = makeTimer()
+        advanceToLongBreak(timer)
+        timer.start()
+
+        timer.swapLongBreak()
+
+        XCTAssertTrue(timer.isRunning)
+        XCTAssertEqual(timer.secondsRemaining, 5 * 60)
+        timer.reset()
+    }
+
+    func testSwapAndPostponeOnlyApplyToLongBreak() {
+        let timer = makeTimer()
+        timer.advanceToNextSession()
+
+        timer.swapLongBreak()
+        timer.postponeLongBreak()
+
+        XCTAssertEqual(timer.session, .shortBreak)
+        XCTAssertEqual(timer.cycleLength, 4)
+        XCTAssertFalse(timer.isLongBreakSwapped)
+    }
+
+    func testResetCancelsPostponedLongBreak() {
+        let timer = makeTimer()
+        advanceToLongBreak(timer)
+        timer.postponeLongBreak()
+
+        timer.reset()
+
+        XCTAssertEqual(timer.cycleLength, 4)
+    }
+
     func testHasProgressWhenRunningOrCycleStarted() {
         let timer = makeTimer()
         XCTAssertFalse(timer.hasProgress)
@@ -241,6 +316,12 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertEqual(sounds, [.focusEnded, .breakEnded])
         XCTAssertFalse(timer.isRunning, "the timer stops after a break by default")
         timer.reset()
+    }
+
+    private func advanceToLongBreak(_ timer: PomodoroTimer) {
+        for _ in 0..<7 {
+            timer.advanceToNextSession()
+        }
     }
 
     private func makeTimer() -> PomodoroTimer {

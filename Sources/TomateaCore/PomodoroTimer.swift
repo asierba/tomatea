@@ -87,8 +87,10 @@ public final class PomodoroTimer: ObservableObject {
     private static let stopAfterBreakKey = "Tomatea.stopAfterBreak"
     private let userDefaults: UserDefaults
     private let playSound: @MainActor (TimerSound) -> Void
+    private let now: () -> Date
 
     private var endDate: Date?
+    private var lastStartDate: Date?
     private var ticker: Timer?
 
     public var formattedTime: String {
@@ -97,10 +99,12 @@ public final class PomodoroTimer: ObservableObject {
 
     public init(
         userDefaults: UserDefaults = .standard,
-        playSound: @escaping @MainActor (TimerSound) -> Void = TimerSound.playBundledSound
+        playSound: @escaping @MainActor (TimerSound) -> Void = TimerSound.playBundledSound,
+        now: @escaping () -> Date = Date.init
     ) {
         self.userDefaults = userDefaults
         self.playSound = playSound
+        self.now = now
         let durations = PomodoroDurations.load(from: userDefaults)
         self.durations = durations
         sessionDuration = durations.focusSeconds
@@ -111,6 +115,10 @@ public final class PomodoroTimer: ObservableObject {
     public func start() {
         guard !isRunning else { return }
 
+        if let lastStartDate, !Calendar.current.isDate(lastStartDate, inSameDayAs: now()) {
+            startNewCycle()
+        }
+        lastStartDate = now()
         playSound(.started)
         startCountdown()
     }

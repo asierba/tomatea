@@ -117,6 +117,36 @@ final class PomodoroTimerTests: XCTestCase {
         XCTAssertEqual(timer.completedPomodoros, 1)
     }
 
+    func testFirstStartOfANewDayStartsNewCycle() {
+        var today = Date()
+        let timer = PomodoroTimer(userDefaults: makeDefaults(), playSound: { _ in }, now: { today })
+        timer.start()
+        timer.stop()
+        for _ in 0..<6 {
+            timer.advanceToNextSession()
+        }
+
+        today = today.addingTimeInterval(24 * 60 * 60)
+        timer.start()
+
+        XCTAssertEqual(timer.completedPomodoros, 0)
+        timer.reset()
+    }
+
+    func testStartOnTheSameDayKeepsCycle() {
+        let today = Date()
+        let timer = PomodoroTimer(userDefaults: makeDefaults(), playSound: { _ in }, now: { today })
+        timer.start()
+        timer.stop()
+        timer.advanceToNextSession()
+        timer.advanceToNextSession()
+
+        timer.start()
+
+        XCTAssertEqual(timer.completedPomodoros, 1)
+        timer.reset()
+    }
+
     func testPrimaryActionSkipsBreakAndStartsFocus() {
         let timer = makeTimer()
         timer.start()

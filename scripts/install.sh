@@ -57,5 +57,6 @@ quit_app_like_cmd_q "$APP_NAME" || force_kill_if_running "$APP_NAME"
 wait_until_stopped "$APP_NAME"
 rm -rf "$DEST"
 cp -R "$APP" "$DEST"
+open "$DEST"
 
 echo "Installed $DEST"

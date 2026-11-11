@@ -36,7 +36,25 @@ PLIST
 
 codesign --force --deep -s - "$APP"
 
-pkill -x "$APP_NAME" || true
+quit_app_like_cmd_q() {
+  osascript \
+    -e "if application \"$1\" is running then" \
+    -e "  tell application \"$1\" to quit" \
+    -e "end if"
+}
+
+force_kill_if_running() {
+  if pgrep -x "$1" >/dev/null; then
+    pkill -x "$1"
+  fi
+}
+
+wait_until_stopped() {
+  while pgrep -x "$1" >/dev/null; do sleep 0.2; done
+}
+
+quit_app_like_cmd_q "$APP_NAME" || force_kill_if_running "$APP_NAME"
+wait_until_stopped "$APP_NAME"
 rm -rf "$DEST"
 cp -R "$APP" "$DEST"
 

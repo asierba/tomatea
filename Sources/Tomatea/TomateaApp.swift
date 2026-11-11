@@ -30,9 +30,15 @@ struct TomateaApp: App {
                         .monospacedDigit()
                 }
             }
-            .help("\(timer.session.title) · \(timer.formattedTime)")
+            .help(tooltip)
         }
         .menuBarExtraStyle(.window)
+    }
+
+    private var tooltip: String {
+        let summary = "\(timer.session.title) · \(timer.formattedTime)"
+        guard let endDate = timer.endDate else { return summary }
+        return "\(summary) · ends \(endDate.formatted(date: .omitted, time: .shortened))"
     }
 }
 

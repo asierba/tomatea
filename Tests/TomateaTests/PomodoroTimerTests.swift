@@ -231,6 +231,43 @@ final class PomodoroTimerTests: XCTestCase {
         timer.reset()
     }
 
+    func testEndDateIsUnsetWhileStopped() {
+        let timer = makeTimer()
+
+        XCTAssertNil(timer.endDate)
+    }
+
+    func testStartingSetsEndDateToRemainingTimeFromNow() throws {
+        let timer = makeTimer()
+
+        timer.start()
+
+        let endDate = try XCTUnwrap(timer.endDate)
+        XCTAssertEqual(endDate.timeIntervalSinceNow, 25 * 60, accuracy: 1)
+        timer.reset()
+    }
+
+    func testStoppingClearsEndDate() {
+        let timer = makeTimer()
+        timer.start()
+
+        timer.stop()
+
+        XCTAssertNil(timer.endDate)
+    }
+
+    func testSwappingRunningLongBreakMovesEndDateEarlier() throws {
+        let timer = makeTimer()
+        advanceToLongBreak(timer)
+        timer.start()
+
+        timer.swapLongBreak()
+
+        let endDate = try XCTUnwrap(timer.endDate)
+        XCTAssertEqual(endDate.timeIntervalSinceNow, 5 * 60, accuracy: 1)
+        timer.reset()
+    }
+
     func testSwapAndPostponeOnlyApplyToLongBreak() {
         let timer = makeTimer()
         timer.advanceToNextSession()

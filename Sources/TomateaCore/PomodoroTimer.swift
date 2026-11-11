@@ -89,7 +89,7 @@ public final class PomodoroTimer: ObservableObject {
     private let playSound: @MainActor (TimerSound) -> Void
     private let now: () -> Date
 
-    private var endDate: Date?
+    public private(set) var endDate: Date?
     private var lastStartDate: Date?
     private var ticker: Timer?
 

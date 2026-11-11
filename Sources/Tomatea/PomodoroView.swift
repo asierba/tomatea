@@ -36,10 +36,17 @@ struct PomodoroView: View {
                     .contentTransition(.numericText())
                     .accessibilityLabel("\(timer.session.title), \(timer.formattedTime) remaining")
                 Spacer()
-                if timer.session == .longBreak {
-                    longBreakMenu
-                } else {
-                    sessionPill
+                VStack(alignment: .trailing, spacing: 4) {
+                    if timer.session == .longBreak {
+                        longBreakMenu
+                    } else {
+                        sessionPill
+                    }
+                    if let endDate = timer.endDate {
+                        Text("until \(endDate, style: .time)")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 
